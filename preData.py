@@ -115,6 +115,17 @@ class Pokemon(Dataset):  # 这个类根据index来加载单个图片，可以用
         label = torch.tensor(label)
 
         return img, label
+    
+    def denormalize(self, x_hot):
+        mean = [0.485, 0.456, 0.406]
+        std = [0.229, 0.224, 0.225]
+
+        # x: [c, h, w]
+        # mean: [3] => [3, 1, 1]
+        mean = torch.tensor(mean).unsqueeze(1).unsqueeze(1)  # 插入两个维度 1，1
+        std = torch.tensor(std).unsqueeze(1).unsqueeze(1)
+        x = (x_hot * std) + mean
+        return x
 
 
 def main():
