@@ -125,32 +125,30 @@ def main():
 
     vis = visdom.Visdom()
 
-    # db = Pokemon('pokeman', 224, "train")
-    #
-    # # 加载一张图片
-    # x, y = next(iter(db))
-    # print('sample:', x.shape, y.shape, y)
-    # vis.image(db.denormalize(x), win='sample-x', opts=dict(title='sample-x'))
-    #
-    # # 加载一个batch的图片
-    # loader = DataLoader(db, batch_size=32, shuffle=True)
-    # for x, y in loader:
-    #     vis.images(db.denormalize(x), nrow=8, win='batch', opts=dict(title='batch-x'))
-    #     vis.text(str(y.numpy()), win='label', opts=dict(title='batch-y'))
-    #
-    #     time.sleep(10)
+    db = Pokemon('pokeman', 224, "train")
+    
+    # 加载一张图片
+    x, y = next(iter(db))
+    print('sample:', x.shape, y.shape, y)
+    vis.image(db.denormalize(x), win='sample-x', opts=dict(title='sample-x'))
+    
+    # 加载一个batch的图片
+    loader = DataLoader(db, batch_size=32, shuffle=True)
+    for x, y in loader:
+        vis.images(db.denormalize(x), nrow=8, win='batch', opts=dict(title='batch-x'))
+        vis.text(str(y.numpy()), win='label', opts=dict(title='batch-y'))
+    
+        time.sleep(10)
 
     # 如果用标准方式存储图片Dataset(一个文件夹下图片都是一类)
     # 通用方法就是上面实现的class，要先拿到每个图片的path，label对存到csv文件里，然后从里面去sample image和对应label(getitem)
     # 最后放到dataloader里操作
-    tf = transforms.Compose([
-        transforms.Resize((128, 128)),
-        transforms.ToTensor()
-    ])
-    db = torchvision.datasets.ImageFolder(root='pokeman', transform=tf)   # 直接用API：传入路径名和变化器就行
-    loader = DataLoader(db, batch_size=32, shuffle=True, num_workers=8)   # 可以用多线程加速
-
-    print(db.class_to_idx)  # 直接得到map
+    # tf = transforms.Compose([
+    #     transforms.Resize((128, 128)),
+    #     transforms.ToTensor()
+    # ])
+    # db = torchvision.datasets.ImageFolder(root='pokeman', transform=tf)   # 直接用API：传入路径名和变化器就行
+    # loader = DataLoader(db, batch_size=32, shuffle=True, num_workers=8)   # 可以用多线程加速
 
     for x, y in loader:
         vis.images(x, nrow=8, win='batch', opts=dict(title='batch-x'))
