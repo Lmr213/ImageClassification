@@ -15,7 +15,7 @@ class ResBlk(nn.Module):
         super(ResBlk, self).__init__()
         self.conv1 = nn.Conv2d(ch_in, ch_out, kernel_size=3, stride=stride, padding=1)
         self.bn1 = nn.BatchNorm2d(ch_out)
-        self.conv2 = nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(ch_out, ch_out, kernel_size=3, stride=stride, padding=1)
         self.bn2 = nn.BatchNorm2d(ch_out)
 
         self.extra = nn.Sequential()
@@ -77,13 +77,9 @@ class ResNet(nn.Module):
         x = self.blk3(x)
         x = self.blk4(x)
 
-        # print(x.shape)
-        # 加入全局平均池化层
-        # 无论输入size多少，只会输出通道数个1*1的像素
         # [b, 256, h, w] => [b, 256, 1, 1]
 
-        # x = F.adaptive_max_pool2d(x, [1, 1])
-        x = x.view(x.size(0), -1)  # 展平操作
+        x = x.view(x.size(0), -1)  # flatten
         x = self.outlayer(x)
 
         return x
