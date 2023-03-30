@@ -25,17 +25,17 @@ test_loader = DataLoader(test_ds, batch_size=batch_size, num_workers=2)
 vis = visdom.Visdom()
 
 
-# test (不需要计算梯度的部分，不用构建计算图)
+# test 
 
-def evalute(model, loader):  # 测试函数对validation和test一样的功能
-    model.eval()  # test mode（声明模式因为在train和test时候模型的计算可能不同，eg:用不用dropout）
+def evalute(model, loader):  
+    model.eval()  # test mode
     correct = 0
     total = len(loader.dataset)
     for x, y in loader:
         x, y = x.to(device), y.to(device)
-        with torch.no_grad():  # 不需要反向传播计算梯度
+        with torch.no_grad(): 
             output = model(x)
-            pred = output.argmax(dim=1)  # 取dim维度上最大值的索引
+            pred = output.argmax(dim=1)  
         correct += torch.eq(pred, y).sum().float().item()  # [b] vs [b] => scalar tensor
 
     return correct / total
@@ -65,27 +65,27 @@ def main():
             loss = loss_function(output, y)
 
             # backprop
-            optimizer.zero_grad()  # 每次要先梯度清零（因为每次backprop会把新的梯度累加到之前的梯度上面）
+            optimizer.zero_grad()  
             loss.backward()
             optimizer.step()
 
-            vis.line([loss.item()], [global_step], win='loss', update='append')  # 把当前step的loss保存下来存到曲线的末尾
+            vis.line([loss.item()], [global_step], win='loss', update='append')  
             global_step += 1
 
-        if epoch % 2 == 0:   # 每两次epoch做一次validation
+        if epoch % 2 == 0:   # each two epoch do validation
 
             val_acc = evalute(model, valid_loader)
             if val_acc > best_acc:
                 best_acc = val_acc
                 best_epoch = epoch
-                # save the current mode，下次继续用
+                # save the current mode
                 torch.save(model.state_dict(), 'best.mdl')
 
                 vis.line([val_acc], [global_step], win='val_acc', update='append')
 
     print('best acc:', best_acc, 'best epoch:', best_epoch)
 
-    model.load_state_dict((torch.load('best.mdl')))  # test时候加载最准确的模型的状态
+    model.load_state_dict((torch.load('best.mdl')))
 
     test_acc = evalute(model, test_loader)
     print('test acc:', test_acc)
