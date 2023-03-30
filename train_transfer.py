@@ -45,7 +45,7 @@ def evalute(model, loader):
 def main():
 
     trained_model = resnet18(pretrained=True).to(device)
-    model = nn.Sequential(*list(trained_model.children())[:-1],  # 取预训练好的前17层，输出[b, 512, 1, 1],最后一层自己定义
+    model = nn.Sequential(*list(trained_model.children())[:-1],  
                           nn.Flatten(),
                           nn.Linear(512, 5)
                           ).to(device)
